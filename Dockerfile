@@ -1,21 +1,30 @@
-# Base image
-FROM python:3.12-slim
+ARG PYTHON_VERSION=3.13-slim
 
-WORKDIR /app
+FROM python:${PYTHON_VERSION}
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y gcc libpq-dev netcat-openbsd && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# install psycopg2 dependencies.
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy app files
-COPY . .
+RUN mkdir -p /code
 
-# Copy wait-for-db script
-COPY wait-for-db.sh /wait-for-db.sh
-RUN chmod +x /wait-for-db.sh
+WORKDIR /code
 
-# CMD: tunggu DB → migrate → runserver
-CMD ["/wait-for-db.sh", "db"]
+COPY requirements.txt /tmp/requirements.txt
+RUN set -ex && \
+    pip install --upgrade pip && \
+    pip install -r /tmp/requirements.txt && \
+    rm -rf /root/.cache/
+COPY . /code
+
+ENV SECRET_KEY "6HfoOsvDrECHiwKyq4BKE5YPSUDBJOrJPzQ6WQ1FX2DLkr0sjY"
+RUN python manage.py collectstatic --noinput
+
+EXPOSE 8000
+
+CMD ["gunicorn","--bind",":8000","--workers","2","monolith.wsgi"]
