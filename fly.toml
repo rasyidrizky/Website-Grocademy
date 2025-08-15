@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for website-grocademy-proud-cloud-4745 on 2025-08-15T23:09:58+07:00
+# fly.toml app configuration file generated for website-grocademy-frosty-moon-6377 on 2025-08-15T23:16:04+07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'website-grocademy-proud-cloud-4745'
+app = 'website-grocademy-frosty-moon-6377'
 primary_region = 'sin'
 console_command = '/code/manage.py shell'
 

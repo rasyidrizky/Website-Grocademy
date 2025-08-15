@@ -32,6 +32,9 @@ DEBUG = os.getenv("DEBUG","True") == "True"
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{os.getenv('FLY_APP_NAME')}.fly.dev"
+]
 
 # Application definition
 
