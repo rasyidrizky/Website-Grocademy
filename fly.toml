@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for website-grocademy-misty-shape-2931 on 2025-08-15T22:54:18+07:00
+# fly.toml app configuration file generated for website-grocademy-winter-bush-6048 on 2025-08-15T22:58:34+07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'website-grocademy-misty-shape-2931'
+app = 'website-grocademy-winter-bush-6048'
 primary_region = 'sin'
 console_command = '/code/manage.py shell'
 
