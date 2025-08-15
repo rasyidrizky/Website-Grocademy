@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Browse Courses{% endblock %}
+{% block content %}
+<h1>Courses</h1>
+<ul>
+  {% for c in courses %}
+    <li>
+      <a href="/courses/{{ c.id }}/">{{ c.title }}</a> — {{ c.price }}
+    </li>
+  {% empty %}<li>No courses</li>{% endfor %}
+</ul>
+{% endblock %}
