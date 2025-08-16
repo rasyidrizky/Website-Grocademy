@@ -5,11 +5,16 @@
 <p>{{ course.description }}</p>
 <h3>Modules</h3>
 <ol>
-  {% for m in course.modules.all %}<li>{{ m.title }}</li>{% endfor %}
+  {% for m in course.modules.all %}
+    <li>{{ m.title }}</li>
+  {% endfor %}
 </ol>
 
-<form method="post" action="/buy/">{% csrf_token %}
-  <input type="hidden" name="course_id" value="{{ course.id }}">
-  <button type="submit">Buy Course</button>
-</form>
+{% if request.user.is_authenticated %}
+  <form method="post" action="{% url 'buy_course' course.id %}">{% csrf_token %}
+    <button type="submit">Buy Course ({{ course.price }})</button>
+  </form>
+{% else %}
+  <p><a href="/login/">Login</a> untuk membeli course.</p>
+{% endif %}
 {% endblock %}

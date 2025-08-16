@@ -17,7 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from users.views import register_view, login_view, logout_view
-from courses.views import browse_courses, course_detail, buy_course, my_courses, course_modules
+from courses.views import (
+    BrowseCoursesView, CourseDetailView, MyCoursesViewFE, BuyCourseViewFE, CourseModulesView
+)
+from courses.api_views import BuyCourseView, MyCoursesView  # API versi DRF
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 from courses.api import CourseViewSet, ModuleViewSet, UserViewSet
@@ -30,22 +33,25 @@ router.register("users", UserViewSet)
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # F01 (FE)
-    path("", browse_courses),
-    path("courses/", browse_courses, name="browse_courses"),
-    path("courses/<int:course_id>/", course_detail, name="course_detail"),
-    path("courses/<int:course_id>/modules/", course_modules, name="course_modules"),
-    path("my/", my_courses, name="my_courses"),
-    path("buy/", buy_course, name="buy_course"),
+    # -------- Frontend (HTML, pakai class-based view) --------
+    path("", BrowseCoursesView.as_view(), name="home"),
+    path("courses/", BrowseCoursesView.as_view(), name="browse_courses"),
+    path("courses/<int:course_id>/", CourseDetailView.as_view(), name="course_detail"),
+    path("courses/<int:course_id>/modules/", CourseModulesView.as_view(), name="course_modules"),
+    path("my/", MyCoursesViewFE.as_view(), name="my_courses"),
+    path("buy/<int:course_id>/", BuyCourseViewFE.as_view(), name="buy_course"),
 
+    # -------- Auth --------
     path("register/", register_view, name="register"),
     path("login/", login_view, name="login"),
     path("logout/", logout_view, name="logout"),
 
-    # Kontrak API (OpenAPI/Swagger)
-    path("schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
-
-    # API routes
+    # -------- API (DRF) --------
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/", include(router.urls)),
+
+    # Custom API
+    path("api/purchases/buy/<int:course_id>/", BuyCourseView.as_view(), name="api_buy_course"),
+    path("api/my-courses/", MyCoursesView.as_view(), name="api_my_courses"),
 ]

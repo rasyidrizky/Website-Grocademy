@@ -3,8 +3,14 @@
 {% block content %}
 <h1>My Courses</h1>
 <ul>
-  {% for uc in items %}
-    <li><a href="/courses/{{ uc.course.id }}/modules/">{{ uc.course.title }}</a></li>
-  {% empty %}<li>Belum ada course</li>{% endfor %}
+  {% for c in courses %}
+    <li>
+      <a href="/courses/{{ c.id }}/modules/">{{ c.title }}</a> 
+      — Progress: {{ c.progress_percentage }}% 
+      — Dibeli: {{ c.purchased_at }}
+    </li>
+  {% empty %}
+    <li>Belum ada course</li>
+  {% endfor %}
 </ul>
 {% endblock %}

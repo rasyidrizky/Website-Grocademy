@@ -1,11 +1,15 @@
 <!doctype html>
 <html>
-  <head><meta charset="utf-8"><title>{% block title %}Grocademy{% endblock %}</title></head>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Grocademy{% endblock %}</title>
+  </head>
   <body>
     <nav>
       <a href="/courses/">Browse</a> | <a href="/my/">My Courses</a> | 
       {% if request.user.is_authenticated %}
-        <span>Hi, {{ request.user.username }}</span> | <a href="/logout/">Logout</a>
+        <span>Hi, {{ request.user.username }} (Saldo: {{ request.user.profile.balance }})</span> | 
+        <a href="/logout/">Logout</a>
       {% else %}
         <a href="/login/">Login</a> | <a href="/register/">Register</a>
       {% endif %}
