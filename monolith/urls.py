@@ -20,7 +20,7 @@ from users.views import register_view, login_view, logout_view
 from courses.views import (
     BrowseCoursesView, CourseDetailView, MyCoursesViewFE, BuyCourseViewFE, CourseModulesView
 )
-from courses.api_views import BuyCourseView, MyCoursesView  # API versi DRF
+from courses.views import BuyCourseView, MyCoursesView  # API versi DRF
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 from courses.api import CourseViewSet, ModuleViewSet, UserViewSet
