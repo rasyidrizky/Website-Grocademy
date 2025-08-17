@@ -1,14 +1,12 @@
 services:
   db:
-    # --- UBAH BARIS INI ---
-    image: postgres:16-alpine 
-    # --------------------
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
+    image: postgres:16-alpine
     environment:
-      - POSTGRES_DB=grocademy_db
-      - POSTGRES_USER=grocademy_user
-      - POSTGRES_PASSWORD=grocademy_password
+      POSTGRES_USER: grocademy_user
+      POSTGRES_PASSWORD: grocademy_password
+      POSTGRES_DB: grocademy_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -16,25 +14,22 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
       - "8000:8000"
-    environment:
-      - SECRET_KEY=ganti-dengan-secret-key-anda
-      - DEBUG=1
-      - DB_NAME=grocademy_db
-      - DB_USER=grocademy_user
-      - DB_PASSWORD=grocademy_password
-      - DB_HOST=db
-      - DB_PORT=5432
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      SECRET_KEY: secret-key-lokal-anda
+      DEBUG: '1'
+      DATABASE_URL: postgres://grocademy_user:grocademy_password@db:5432/grocademy_db
+    restart: unless-stopped
 
 volumes:
   postgres_data:
