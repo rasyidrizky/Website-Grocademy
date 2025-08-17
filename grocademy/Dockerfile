@@ -1,30 +1,33 @@
-ARG PYTHON_VERSION=3.13-slim
+# Dockerfile
 
+# Menggunakan versi Python yang sudah kita verifikasi sebelumnya
+ARG PYTHON_VERSION=3.11-slim-buster
 FROM python:${PYTHON_VERSION}
 
+# Mengatur environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# install psycopg2 dependencies.
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+# Mengatur working directory ke /app
+WORKDIR /app
 
-RUN mkdir -p /code
+# Menginstal dependensi sistem yang dibutuhkan oleh psycopg2
+RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /code
+# Menyalin file requirements terlebih dahulu untuk caching
+COPY requirements.txt .
 
-COPY requirements.txt /tmp/requirements.txt
-RUN set -ex && \
-    pip install --upgrade pip && \
-    pip install -r /tmp/requirements.txt && \
-    rm -rf /root/.cache/
-COPY . /code
+# Menginstal dependensi Python
+RUN pip install --no-cache-dir -r requirements.txt
 
-ENV SECRET_KEY "6IAC9V9uLtj2jyvWYs1IHaGzc4FPGFEouo4PwUv6DjZ50j9yqo"
+# Menyalin seluruh kode proyek ke dalam working directory
+COPY . .
+
+# Menjalankan collectstatic untuk mengumpulkan semua file statis
 RUN python manage.py collectstatic --noinput
 
+# Memberi tahu Docker bahwa aplikasi berjalan di port 8000
 EXPOSE 8000
 
-CMD ["gunicorn","--bind",":8000","--workers","2","monolith.wsgi"]
+# Perintah untuk menjalankan aplikasi menggunakan Gunicorn
+CMD ["gunicorn", "monolith.wsgi:application", "--bind", "0.0.0.0:8000"]
