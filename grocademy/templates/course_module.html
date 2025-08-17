@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ course.title }}</h2>
+    <p>by {{ course.instructor }}</p>
+
+    <h4 class="mt-4">Your Progress</h4>
+    <div class="progress" style="height: 25px;">
+        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: {{ progress_percentage }}%;" aria-valuenow="{{ progress_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ progress_percentage }}%</div>
+    </div>
+
+    <div id="certificate-link-container" class="mt-3">
+        {% if progress_percentage == 100 %}
+            <a href="/course/{{ course.id }}/certificate/" class="btn btn-warning">View Certificate</a>
+        {% endif %}
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <h4>Modules</h4>
+            <div class="list-group">
+                {% for module in modules %}
+                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                   onclick="event.preventDefault(); viewModuleContent('{{ module.title }}', '{{ module.pdf_content }}', '{{ module.video_content }}')">
+                    
+                    <span>{{ module.order }}. {{ module.title }}</span>
+                    
+                    <button id="btn-complete-{{module.id}}" class="btn btn-sm 
+                        {% if module.id in completed_modules_ids %}
+                            btn-success disabled
+                        {% else %}
+                            btn-outline-primary
+                        {% endif %}" 
+                        onclick="event.stopPropagation(); completeModule(this, {{ module.id }})">
+                        {% if module.id in completed_modules_ids %}✓{% else %}Complete{% endif %}
+                    </button>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h4 id="module-content-title">Module Content</h4>
+            <div class="card">
+                <div class="card-body" id="module-content-display" style="min-height: 400px;">
+                    <p>Select a module from the left to view its content.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewModuleContent(title, pdfUrl, videoUrl) {
+    const contentDisplay = document.getElementById('module-content-display');
+    const contentTitle = document.getElementById('module-content-title');
+    
+    contentTitle.textContent = title;
+    let contentHTML = '<p>No content available for this module.</p>';
+
+    if (videoUrl && videoUrl !== 'None') {
+        contentHTML = `<div class="ratio ratio-16x9"><iframe src="${videoUrl}" title="${title}" allowfullscreen></iframe></div>`;
+    } else if (pdfUrl && pdfUrl !== 'None') {
+        // Gunakan iframe untuk menampilkan PDF
+        contentHTML = `<iframe src="${pdfUrl}" style="width:100%; height:500px;" frameborder="0"></iframe>`;
+    }
+    
+    contentDisplay.innerHTML = contentHTML;
+}
+
+async function completeModule(button, moduleId) {
+    // ... (fungsi completeModule dari langkah sebelumnya tetap sama)
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+        alert('Please login first.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/modules/${moduleId}/complete/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            button.textContent = '✓';
+            button.classList.remove('btn-outline-primary');
+            button.classList.add('btn-success', 'disabled');
+
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = data.percentage + '%';
+            progressBar.textContent = data.percentage + '%';
+            progressBar.ariaValueNow = data.percentage;
+
+            if (data.percentage === 100) {
+                const certContainer = document.getElementById('certificate-link-container');
+                certContainer.innerHTML = `<a href="/course/${data.course_id}/certificate/" class="btn btn-warning">View Certificate</a>`;
+            }
+        } else {
+            alert(data.error || 'Failed to update progress.');
+        }
+    }
+}
+</script>
+{% endblock %}

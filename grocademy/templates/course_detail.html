@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ course.title }}</h1>
+            <p class="lead">by {{ course.instructor }}</p>
+            <hr>
+            <h4>Description</h4>
+            <p>{{ course.description }}</p>
+            <h4>Topics</h4>
+            <ul>
+                {% for topic in topics_list %}
+                <li>{{ topic }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Price: ${{ course.price }}</h3>
+                    <div id="alert-container-detail"></div>
+                    <div class="d-grid">
+                        {% if is_purchased %}
+                            <a href="#" class="btn btn-success disabled">Purchased</a>
+                        {% else %}
+                            <button id="buy-button" class="btn btn-primary" data-course-id="{{ course.id }}">Buy Now</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const buyButton = document.getElementById('buy-button');
+    if (buyButton) {
+        buyButton.addEventListener('click', handleBuyCourse);
+    }
+});
+
+function showAlertDetail(message, type = 'danger') {
+    const alertContainer = document.getElementById('alert-container-detail');
+    alertContainer.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show mt-3" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+}
+
+async function handleBuyCourse(event) {
+    const button = event.target;
+    const courseId = button.dataset.courseId;
+    const token = localStorage.getItem('accessToken');
+
+    if (!token) {
+        showAlertDetail('You must be logged in to purchase a course.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/courses/${courseId}/buy/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            showAlertDetail(data.message, 'success');
+            button.textContent = 'Purchased';
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-success', 'disabled');
+        } else {
+            showAlertDetail(data.error || 'Failed to purchase course.');
+        }
+    } catch (error) {
+        showAlertDetail('An unexpected error occurred.');
+    }
+}
+</script>
+{% endblock %}
