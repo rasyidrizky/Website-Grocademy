@@ -8,6 +8,8 @@ primary_region = 'sin'
 console_command = '/code/manage.py shell'
 
 [build]
+  [build.args]
+    SECRET_KEY_DUMMY = "a-dummy-secret-key-for-building-only"
 
 [deploy]
   release_command = 'python manage.py migrate --noinput'
