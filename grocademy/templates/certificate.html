@@ -10,14 +10,29 @@
             border: 10px solid #0d6efd;
             padding: 50px;
             background-color: white;
-            margin-top: 50px;
+            margin-top: 20px; /* Sedikit ruang dari tombol */
             max-width: 800px;
         }
         .certificate-title { font-family: 'Times New Roman', serif; font-weight: bold; }
         .user-name { font-family: 'Brush Script MT', cursive; font-size: 3rem; color: #0d6efd; }
+
+        /* [BARU] CSS untuk menyembunyikan elemen saat mencetak */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <div class="container mt-3 no-print">
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'course_modules' course.id %}" class="btn btn-secondary">← Kembali ke Modul</a>
+            <button onclick="window.print()" class="btn btn-primary">Cetak Sertifikat</button>
+        </div>
+    </div>
+
     <div class="container certificate-container">
         <div class="text-center">
             <h1 class="certificate-title">CERTIFICATE of COMPLETION</h1>

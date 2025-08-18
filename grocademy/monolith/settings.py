@@ -23,16 +23,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'secret-key-lokal-yang-tidak-aman-untuk-development')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = os.getenv('DEBUG', 'False').lower() in ['true', '1', 't']
 
-ALLOWED_HOSTS = [
-    'grocademy-floral-cloud-341.fly.dev',
-    'localhost',
-    '127.0.0.1',
-]
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
+
+if DEBUG:
+    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
 
 # Application definition
 

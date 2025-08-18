@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from django.core.paginator import Paginator
 from .models import Course, UserCourse, Module, UserModuleProgress
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 import json
 
 class HomePageView(View):
@@ -24,23 +26,18 @@ class HomePageView(View):
         }
         return render(request, 'index.html', context)
     
+@method_decorator(never_cache, name='dispatch')
 class CourseDetailPageView(View):
     def get(self, request, pk):
         course = Course.objects.get(pk=pk)
-        
-        # Cek apakah user sudah login dan membeli kursus ini
-        is_purchased = False
-        if request.user.is_authenticated:
-            is_purchased = UserCourse.objects.filter(user=request.user, course=course).exists()
-
         context = {
             'course': course,
-            'is_purchased': is_purchased,
-            # Ubah JSON string menjadi list Python untuk ditampilkan di template
             'topics_list': json.loads(course.topics)
+            # HAPUS SEMUA LOGIKA is_purchased dan is_completed dari sini
         }
         return render(request, 'course_detail.html', context)
     
+@method_decorator(never_cache, name='dispatch')
 class MyCoursesPageView(LoginRequiredMixin, View):
     login_url = '/login/' # URL tujuan jika user belum login
 
@@ -54,25 +51,31 @@ class MyCoursesPageView(LoginRequiredMixin, View):
         }
         return render(request, 'my_courses.html', context)
     
+@method_decorator(never_cache, name='dispatch')
 class CourseModulePageView(LoginRequiredMixin, View):
-    login_url = '/login/'
+    """
+    View ini sekarang DILINDUNGI.
+    LoginRequiredMixin adalah lapis keamanan pertama.
+    """
+    login_url = '/login/'  # Jika tidak login, alihkan ke sini.
 
     def get(self, request, pk):
         try:
-            # Pastikan user sudah membeli kursus ini
+            # Lapis Keamanan Kedua: Cek apakah user telah membeli kursus ini.
+            # Jika baris ini gagal (user belum membeli), akan loncat ke blok 'except'.
             user_course = UserCourse.objects.get(user=request.user, course_id=pk)
         except UserCourse.DoesNotExist:
-            # Jika belum, kembalikan ke halaman utama atau tampilkan error
+            # Jika user sudah login tapi belum membeli, alihkan ke halaman utama.
             return redirect('home')
 
+        # --- Kode di bawah ini hanya akan berjalan jika user sudah login DAN sudah membeli ---
+        
         course = user_course.course
         modules = course.modules.all().order_by('order')
         
-        # Ambil progress user
         completed_modules = UserModuleProgress.objects.filter(user_course=user_course, is_completed=True)
         completed_modules_ids = completed_modules.values_list('module_id', flat=True)
 
-        # Hitung persentase progress
         total_modules = modules.count()
         completed_count = completed_modules.count()
         progress_percentage = (completed_count / total_modules) * 100 if total_modules > 0 else 0
@@ -85,6 +88,7 @@ class CourseModulePageView(LoginRequiredMixin, View):
         }
         return render(request, 'course_module.html', context)
     
+@method_decorator(never_cache, name='dispatch')
 class CertificateView(LoginRequiredMixin, View):
     login_url = '/login/'
 

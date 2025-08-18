@@ -21,12 +21,8 @@
                 <div class="card-body">
                     <h3 class="card-title">Price: ${{ course.price }}</h3>
                     <div id="alert-container-detail"></div>
-                    <div class="d-grid">
-                        {% if is_purchased %}
-                            <a href="#" class="btn btn-success disabled">Purchased</a>
-                        {% else %}
-                            <button id="buy-button" class="btn btn-primary" data-course-id="{{ course.id }}">Buy Now</button>
-                        {% endif %}
+                    <div class="d-grid" id="course-action-container">
+                        <button id="buy-button" class="btn btn-primary" data-course-id="{{ course.id }}">Buy Now</button>
                     </div>
                 </div>
             </div>

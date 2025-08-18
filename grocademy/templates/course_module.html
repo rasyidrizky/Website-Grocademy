@@ -22,7 +22,7 @@
             <div class="list-group">
                 {% for module in modules %}
                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                   onclick="event.preventDefault(); viewModuleContent('{{ module.title }}', '{{ module.pdf_content }}', '{{ module.video_content }}')">
+                   onclick="event.preventDefault(); viewModuleContent('{{ module.title }}', '{{ module.pdf_content|default_if_none:'' }}', '{{ module.video_content|default_if_none:'' }}')">
                     
                     <span>{{ module.order }}. {{ module.title }}</span>
                     
@@ -52,25 +52,34 @@
 </div>
 
 <script>
+// Ganti fungsi lama dengan yang ini di dalam templates/course_module.html
+
 function viewModuleContent(title, pdfUrl, videoUrl) {
     const contentDisplay = document.getElementById('module-content-display');
     const contentTitle = document.getElementById('module-content-title');
     
     contentTitle.textContent = title;
-    let contentHTML = '<p>No content available for this module.</p>';
+    let contentHTML = ''; // Mulai dengan string kosong
 
-    if (videoUrl && videoUrl !== 'None') {
-        contentHTML = `<div class="ratio ratio-16x9"><iframe src="${videoUrl}" title="${title}" allowfullscreen></iframe></div>`;
-    } else if (pdfUrl && pdfUrl !== 'None') {
-        // Gunakan iframe untuk menampilkan PDF
-        contentHTML = `<iframe src="${pdfUrl}" style="width:100%; height:500px;" frameborder="0"></iframe>`;
+    // Jika ada video, tambahkan elemen video
+    if (videoUrl) {
+        contentHTML += `<h4>Video</h4><div class="ratio ratio-16x9 mb-4"><iframe src="${videoUrl}" title="${title}" allowfullscreen></iframe></div>`;
+    }
+
+    // Jika ada PDF, tambahkan elemen PDF
+    if (pdfUrl) {
+        contentHTML += `<h4>PDF Document</h4><iframe src="${pdfUrl}" style="width:100%; height:500px;" frameborder="0"></iframe>`;
     }
     
+    // Jika tidak ada konten sama sekali setelah kedua pengecekan
+    if (!contentHTML) {
+        contentHTML = '<p>No content available for this module.</p>';
+    }
+
     contentDisplay.innerHTML = contentHTML;
 }
 
 async function completeModule(button, moduleId) {
-    // ... (fungsi completeModule dari langkah sebelumnya tetap sama)
     const token = localStorage.getItem('accessToken');
     if (!token) {
         alert('Please login first.');
@@ -95,13 +104,17 @@ async function completeModule(button, moduleId) {
             progressBar.textContent = data.percentage + '%';
             progressBar.ariaValueNow = data.percentage;
 
-            if (data.percentage === 100) {
+            if (data.percentage >= 100) {
                 const certContainer = document.getElementById('certificate-link-container');
                 certContainer.innerHTML = `<a href="/course/${data.course_id}/certificate/" class="btn btn-warning">View Certificate</a>`;
             }
         } else {
             alert(data.error || 'Failed to update progress.');
         }
+    } catch (error) {
+        alert('An unexpected error occurred. Check the console for details.');
+        // [BARU] Tambahkan baris ini untuk mencetak error yang sebenarnya
+        console.error("Error saat menyelesaikan modul:", error);
     }
 }
 </script>
