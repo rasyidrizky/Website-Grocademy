@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 # Import API Views
 from courses.views_api import CourseViewSet, ModuleViewSet 
@@ -53,6 +54,10 @@ urlpatterns = [
     path('api/courses/my-courses/', MyCoursesAPIView.as_view(), name='api_my_courses'),
     path('api/courses/<int:pk>/modules/', ModuleListAPIView.as_view(), name='api_module_list'),
     path('api/modules/<int:pk>/complete/', CompleteModuleAPIView.as_view(), name='api_module_complete'),
+    
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # 3. Frontend Monolith Pages
     path('', HomePageView.as_view(), name='home'),
