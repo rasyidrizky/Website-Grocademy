@@ -22,15 +22,16 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 # Import API Views
 from courses.views_api import CourseViewSet, ModuleViewSet 
+from courses.views_api_cart import CartView, CartItemView, CheckoutView
 from users.views_api import RegisterAPIView, UserDetailAPIView, UserAdminViewSet, CustomTokenObtainPairView 
 
 # Import Frontend Views
-from courses.views_frontend import HomePageView, CourseDetailPageView, MyCoursesPageView, CourseModulePageView, CertificateView 
+from courses.views_frontend import HomePageView, CourseDetailPageView, MyCoursesPageView, CourseModulePageView, CertificateView, CartPageView, HistoryPageView
 
 # Import Frontend Views User
 from users.views_frontend import RegisterPageView, LoginPageView
 from courses.views_api_buy import BuyCourseAPIView
-from courses.views_api_mycourses import MyCoursesAPIView
+from courses.views_api_mycourses import MyCoursesAPIView, PurchaseHistoryAPIView
 from courses.views_api_modules import ModuleListAPIView, CompleteModuleAPIView
 
 # Router untuk API
@@ -58,6 +59,14 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    
+    path('cart/', CartPageView.as_view(), name='cart_page'),
+    path('api/cart/', CartView.as_view(), name='cart_view'),
+    path('api/cart/items/<int:item_id>/', CartItemView.as_view(), name='cart_item_view'),
+    path('api/cart/checkout/', CheckoutView.as_view(), name='checkout_view'),
+    
+    path('api/history/', PurchaseHistoryAPIView.as_view(), name='api_purchase_history'),
+    path('history/', HistoryPageView.as_view(), name='history_page'),
 
     # 3. Frontend Monolith Pages
     path('', HomePageView.as_view(), name='home'),

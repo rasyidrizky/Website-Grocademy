@@ -5,7 +5,14 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    libpango-1.0-0 \
+    libharfbuzz0b \
+    libfontconfig1 \
+    libpangoft2-1.0-0 \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 

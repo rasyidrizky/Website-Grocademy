@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Shopping Cart</h1>
+    <div id="alert-container-cart"></div>
+
+    <div class="row">
+        <div class="col-md-8" id="cart-items-container">
+            <p>Loading cart...</p>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Summary</h5>
+                    <hr>
+                    <div id="cart-summary-container">
+                        </div>
+                    <div class="d-grid mt-3">
+                        <button class="btn btn-primary" id="checkout-button" disabled>Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', loadCart);
+
+    async function loadCart() {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/cart/', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const cart = await response.json();
+
+            renderCartItems(cart.items);
+            renderCartSummary(cart.items);
+        } catch (error) {
+            console.error("Failed to load cart:", error);
+            document.getElementById('cart-items-container').innerHTML = '<p>Error loading cart.</p>';
+        }
+    }
+
+    function renderCartItems(items) {
+        const container = document.getElementById('cart-items-container');
+        if (items.length === 0) {
+            container.innerHTML = '<p>Your cart is empty.</p>';
+            return;
+        }
+
+        let html = '';
+        items.forEach(item => {
+            // [DIPERBARUI] Mengubah format harga kembali ke Dolar
+            const price = parseFloat(item.course.price).toFixed(2);
+            html += `
+                <div class="card mb-3" id="cart-item-${item.id}">
+                    <div class="row g-0">
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">${item.course.title}</h5>
+                                <p class="card-text"><small class="text-muted">by ${item.course.instructor}</small></p>
+                                <h4>$${price}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeItem(${item.id})">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function renderCartSummary(items) {
+        const container = document.getElementById('cart-summary-container');
+        const checkoutButton = document.getElementById('checkout-button');
+        const totalPrice = items.reduce((sum, item) => sum + parseFloat(item.course.price), 0);
+
+        // [DIPERBARUI] Mengubah format total harga kembali ke Dolar
+        container.innerHTML = `
+            <div class="d-flex justify-content-between">
+                <span>Total Price:</span>
+                <strong>$${totalPrice.toFixed(2)}</strong>
+            </div>
+        `;
+
+        if (items.length > 0) {
+            checkoutButton.disabled = false;
+        }
+    }
+    
+    async function removeItem(itemId) {
+        if (!confirm('Are you sure you want to remove this item?')) return;
+        
+        const token = localStorage.getItem('accessToken');
+        await fetch(`/api/cart/items/${itemId}/`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        loadCart(); 
+    }
+
+    document.getElementById('checkout-button').addEventListener('click', async () => {
+        if (!confirm('Proceed to checkout?')) return;
+
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('/api/cart/checkout/', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(data.message);
+            window.location.href = '/my-courses';
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    });
+</script>
+{% endblock %}

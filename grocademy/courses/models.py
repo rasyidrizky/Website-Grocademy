@@ -50,3 +50,22 @@ class UserModuleProgress(models.Model):
 
     class Meta:
         unique_together = ('user_course', 'module')
+        
+class Cart(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Cart for {self.user.username}"
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Pastikan satu course hanya bisa ditambahkan sekali ke dalam satu cart
+        unique_together = ('cart', 'course')
+
+    def __str__(self):
+        return f"{self.course.title} in {self.cart}"

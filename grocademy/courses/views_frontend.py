@@ -5,6 +5,9 @@ from .models import Course, UserCourse, Module, UserModuleProgress
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
 import json
 
 class HomePageView(View):
@@ -30,10 +33,41 @@ class HomePageView(View):
 class CourseDetailPageView(View):
     def get(self, request, pk):
         course = Course.objects.get(pk=pk)
+
+        # --- [LOGIKA BARU] Logika cerdas untuk menangani 'topics' ---
+        topics_data = course.topics
+        topics_list = []
+        if isinstance(topics_data, list):
+            # Jika sudah berupa list, langsung gunakan
+            topics_list = topics_data
+        elif isinstance(topics_data, str):
+            # Jika berupa string, coba parsing sebagai JSON
+            try:
+                topics_list = json.loads(topics_data)
+                # Pastikan hasilnya adalah list
+                if not isinstance(topics_list, list):
+                    topics_list = [topics_list]
+            except json.JSONDecodeError:
+                # Jika gagal parsing, anggap sebagai satu topik utuh
+                topics_list = [topics_data]
+        # ----------------------------------------------------
+
+        is_purchased = False
+        is_completed = False
+        if request.user.is_authenticated:
+            try:
+                user_course = UserCourse.objects.get(user=request.user, course=course)
+                is_purchased = True
+                if user_course.completion_date:
+                    is_completed = True
+            except UserCourse.DoesNotExist:
+                is_purchased = False
+
         context = {
             'course': course,
-            'topics_list': json.loads(course.topics)
-            # HAPUS SEMUA LOGIKA is_purchased dan is_completed dari sini
+            'is_purchased': is_purchased,
+            'is_completed': is_completed,
+            'topics_list': topics_list  # Gunakan hasil dari logika cerdas
         }
         return render(request, 'course_detail.html', context)
     
@@ -79,12 +113,27 @@ class CourseModulePageView(LoginRequiredMixin, View):
         total_modules = modules.count()
         completed_count = completed_modules.count()
         progress_percentage = (completed_count / total_modules) * 100 if total_modules > 0 else 0
+        
+        # --- [LOGIKA BARU] Salin logika cerdas yang sama ke sini ---
+        topics_data = course.topics
+        topics_list = []
+        if isinstance(topics_data, list):
+            topics_list = topics_data
+        elif isinstance(topics_data, str):
+            try:
+                topics_list = json.loads(topics_data)
+                if not isinstance(topics_list, list):
+                    topics_list = [topics_list]
+            except json.JSONDecodeError:
+                topics_list = [topics_data]
+        # ----------------------------------------------------
 
         context = {
             'course': course,
             'modules': modules,
             'completed_modules_ids': list(completed_modules_ids),
-            'progress_percentage': round(progress_percentage)
+            'progress_percentage': round(progress_percentage),
+            'topics_list': json.loads(course.topics) # <-- TAMBAHKAN BARIS INI
         }
         return render(request, 'course_module.html', context)
     
@@ -94,18 +143,43 @@ class CertificateView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         try:
-            # Ambil data pembelian kursus
             user_course = UserCourse.objects.get(user=request.user, course_id=pk)
         except UserCourse.DoesNotExist:
             return redirect('home')
 
-        # Pastikan kursus sudah selesai (completion_date tidak kosong)
         if not user_course.completion_date:
-            return redirect('course_modules', pk=pk) # Arahkan kembali ke halaman modul
+            return redirect('course_modules', pk=pk)
 
         context = {
             'user': request.user,
             'course': user_course.course,
             'completion_date': user_course.completion_date
         }
-        return render(request, 'certificate.html', context)
+
+        # 1. Render template HTML menjadi sebuah string
+        html_string = render_to_string('certificate.html', context)
+
+        # 2. Buat objek HTML dari string tersebut
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+
+        # 3. Buat file PDF di dalam memori
+        pdf = html.write_pdf()
+
+        # 4. Buat response HTTP dengan konten PDF
+        response = HttpResponse(pdf, content_type='application/pdf')
+
+        # 5. Tambahkan header agar file di-download dengan nama yang bagus
+        filename = f"Sertifikat-{user_course.course.title.replace(' ', '-')}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+        return response
+    
+class CartPageView(LoginRequiredMixin, View):
+    login_url = '/login/'
+    def get(self, request):
+        return render(request, 'cart.html')
+    
+class HistoryPageView(LoginRequiredMixin, View):
+    login_url = '/login/'
+    def get(self, request):
+        return render(request, 'history.html')

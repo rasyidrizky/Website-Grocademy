@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-4">
     <div class="row">
         <div class="col-md-8">
             <h1>{{ course.title }}</h1>
             <p class="lead">by {{ course.instructor }}</p>
             <hr>
+
             <h4>Description</h4>
-            <p>{{ course.description }}</p>
+            <p class="card-text">{{ course.description|linebreaks }}</p>
+
             <h4>Topics</h4>
             <ul>
                 {% for topic in topics_list %}
@@ -16,13 +18,14 @@
                 {% endfor %}
             </ul>
         </div>
+
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title">Price: ${{ course.price }}</h3>
                     <div id="alert-container-detail"></div>
                     <div class="d-grid" id="course-action-container">
-                        <button id="buy-button" class="btn btn-primary" data-course-id="{{ course.id }}">Buy Now</button>
+                        <button id="add-to-cart-button" class="btn btn-primary" data-course-id="{{ course.id }}">Add to Cart</button>
                     </div>
                 </div>
             </div>
@@ -31,54 +34,69 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const buyButton = document.getElementById('buy-button');
-    if (buyButton) {
-        buyButton.addEventListener('click', handleBuyCourse);
-    }
-});
-
-function showAlertDetail(message, type = 'danger') {
-    const alertContainer = document.getElementById('alert-container-detail');
-    alertContainer.innerHTML = `
-        <div class="alert alert-${type} alert-dismissible fade show mt-3" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `;
-}
-
-async function handleBuyCourse(event) {
-    const button = event.target;
-    const courseId = button.dataset.courseId;
-    const token = localStorage.getItem('accessToken');
-
-    if (!token) {
-        showAlertDetail('You must be logged in to purchase a course.');
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/courses/${courseId}/buy/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-            showAlertDetail(data.message, 'success');
-            button.textContent = 'Purchased';
-            button.classList.remove('btn-primary');
-            button.classList.add('btn-success', 'disabled');
-        } else {
-            showAlertDetail(data.error || 'Failed to purchase course.');
+    document.addEventListener('DOMContentLoaded', () => {
+        // Logika ini akan mencari tombol di Halaman Detail Kursus
+        // dan di Halaman Browse Courses (jika Anda mengembangkannya nanti)
+        const addToCartButton = document.getElementById('add-to-cart-button');
+        if (addToCartButton) {
+            addToCartButton.addEventListener('click', handleAddToCart);
         }
-    } catch (error) {
-        showAlertDetail('An unexpected error occurred.');
+
+        // Kita juga pastikan tombol "Buy Now" (dari versi lama) ditangani
+        const buyButton = document.getElementById('buy-button');
+        if(buyButton) {
+            buyButton.addEventListener('click', handleAddToCart); // Arahkan ke fungsi yang sama
+        }
+    });
+
+    async function handleAddToCart(event) {
+        const button = event.target;
+        const courseId = button.dataset.courseId;
+        const token = localStorage.getItem('accessToken');
+
+        if (!token) {
+            window.location.href = '/login/';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/cart/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ course_id: courseId })
+            });
+
+            // response.json() akan error jika responsnya kosong atau bukan JSON valid
+            const data = await response.json();
+
+            if (response.ok) {
+                showAlertDetail(data.message, 'success');
+                button.textContent = 'Added to Cart';
+                button.disabled = true; // Cara yang lebih baik untuk menonaktifkan tombol
+                button.classList.add('btn-success');
+                button.classList.remove('btn-primary');
+            } else {
+                showAlertDetail(data.error || 'Failed to add to cart.');
+            }
+        } catch (error) {
+            showAlertDetail('An unexpected error occurred. Check console for details.');
+            console.error("Error adding to cart:", error); // Mencetak error asli ke console
+        }
     }
-}
+
+    function showAlertDetail(message, type = 'danger') {
+        const alertContainer = document.getElementById('alert-container-detail');
+        if (alertContainer) {
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show mt-3" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        }
+    }
 </script>
 {% endblock %}

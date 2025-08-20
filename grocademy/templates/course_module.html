@@ -3,18 +3,29 @@
 {% block content %}
 <div class="container mt-4">
     <h2>{{ course.title }}</h2>
-    <p>by {{ course.instructor }}</p>
+    <p class="text-muted">by {{ course.instructor }}</p>
+
+    <div class="my-4 p-3 bg-light rounded">
+        <h4>Description</h4>
+        <p>{{ course.description }}</p>
+        <h4>Topics</h4>
+        <ul>
+            {% for topic in topics_list %}
+                <li>{{ topic }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 
     <h4 class="mt-4">Your Progress</h4>
     <div class="progress" style="height: 25px;">
         <div id="progress-bar" class="progress-bar" role="progressbar" style="width: {{ progress_percentage }}%;" aria-valuenow="{{ progress_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ progress_percentage }}%</div>
     </div>
-
     <div id="certificate-link-container" class="mt-3">
         {% if progress_percentage == 100 %}
-            <a href="/course/{{ course.id }}/certificate/" class="btn btn-warning">View Certificate</a>
+            <a href="{% url 'course_certificate' course.id %}" class="btn btn-warning">Download Certificate (PDF)</a>
         {% endif %}
     </div>
+
 
     <div class="row mt-4">
         <div class="col-md-4">
@@ -22,19 +33,11 @@
             <div class="list-group">
                 {% for module in modules %}
                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                   onclick="event.preventDefault(); viewModuleContent('{{ module.title }}', '{{ module.pdf_content|default_if_none:'' }}', '{{ module.video_content|default_if_none:'' }}')">
+                   
+                   onclick="event.preventDefault(); viewModuleContent('{{ module.title }}', '{{ module.description|linebreaks|escapejs }}', '{{ module.pdf_content|default_if_none:'' }}', '{{ module.video_content|default_if_none:'' }}')">
                     
                     <span>{{ module.order }}. {{ module.title }}</span>
-                    
-                    <button id="btn-complete-{{module.id}}" class="btn btn-sm 
-                        {% if module.id in completed_modules_ids %}
-                            btn-success disabled
-                        {% else %}
-                            btn-outline-primary
-                        {% endif %}" 
-                        onclick="event.stopPropagation(); completeModule(this, {{ module.id }})">
-                        {% if module.id in completed_modules_ids %}✓{% else %}Complete{% endif %}
-                    </button>
+                    <button id="btn-complete-{{module.id}}" class="btn btn-sm {% if module.id in completed_modules_ids %}btn-success disabled{% else %}btn-outline-primary{% endif %}" onclick="event.stopPropagation(); completeModule(this, {{ module.id }})">{% if module.id in completed_modules_ids %}✓{% else %}Complete{% endif %}</button>
                 </a>
                 {% endfor %}
             </div>
@@ -53,13 +56,17 @@
 
 <script>
 // Ganti fungsi lama dengan yang ini di dalam templates/course_module.html
-
-function viewModuleContent(title, pdfUrl, videoUrl) {
+function viewModuleContent(title, description, pdfUrl, videoUrl) {
     const contentDisplay = document.getElementById('module-content-display');
     const contentTitle = document.getElementById('module-content-title');
     
     contentTitle.textContent = title;
-    let contentHTML = ''; // Mulai dengan string kosong
+    let contentHTML = '';
+
+    // [BARU] Tampilkan deskripsi modul
+    if (description) {
+        contentHTML += `<p class="card-text">${description}</p><hr>`;
+    }
 
     // Jika ada video, tambahkan elemen video
     if (videoUrl) {
@@ -71,9 +78,9 @@ function viewModuleContent(title, pdfUrl, videoUrl) {
         contentHTML += `<h4>PDF Document</h4><iframe src="${pdfUrl}" style="width:100%; height:500px;" frameborder="0"></iframe>`;
     }
     
-    // Jika tidak ada konten sama sekali setelah kedua pengecekan
-    if (!contentHTML) {
-        contentHTML = '<p>No content available for this module.</p>';
+    // Jika tidak ada konten sama sekali
+    if (!videoUrl && !pdfUrl) {
+        contentHTML += '<p>No content available for this module.</p>';
     }
 
     contentDisplay.innerHTML = contentHTML;
@@ -106,7 +113,7 @@ async function completeModule(button, moduleId) {
 
             if (data.percentage >= 100) {
                 const certContainer = document.getElementById('certificate-link-container');
-                certContainer.innerHTML = `<a href="/course/${data.course_id}/certificate/" class="btn btn-warning">View Certificate</a>`;
+                certContainer.innerHTML = '<a href="/course/${data.course_id}/certificate/" class="btn btn-warning">Download Certificate (PDF)</a>';
             }
         } else {
             alert(data.error || 'Failed to update progress.');
