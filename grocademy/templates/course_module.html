@@ -5,7 +5,7 @@
     <h2>{{ course.title }}</h2>
     <p class="text-muted">by {{ course.instructor }}</p>
 
-    <div class="my-4 p-3 bg-light rounded">
+    <div class="my-4 p-3 bg-light rounded text-bg-light">
         <h4>Description</h4>
         <p>{{ course.description }}</p>
         <h4>Topics</h4>
@@ -55,7 +55,6 @@
 </div>
 
 <script>
-// Ganti fungsi lama dengan yang ini di dalam templates/course_module.html
 function viewModuleContent(title, description, pdfUrl, videoUrl) {
     const contentDisplay = document.getElementById('module-content-display');
     const contentTitle = document.getElementById('module-content-title');
@@ -63,22 +62,18 @@ function viewModuleContent(title, description, pdfUrl, videoUrl) {
     contentTitle.textContent = title;
     let contentHTML = '';
 
-    // [BARU] Tampilkan deskripsi modul
     if (description) {
         contentHTML += `<p class="card-text">${description}</p><hr>`;
     }
 
-    // Jika ada video, tambahkan elemen video
     if (videoUrl) {
         contentHTML += `<h4>Video</h4><div class="ratio ratio-16x9 mb-4"><iframe src="${videoUrl}" title="${title}" allowfullscreen></iframe></div>`;
     }
 
-    // Jika ada PDF, tambahkan elemen PDF
     if (pdfUrl) {
         contentHTML += `<h4>PDF Document</h4><iframe src="${pdfUrl}" style="width:100%; height:500px;" frameborder="0"></iframe>`;
     }
     
-    // Jika tidak ada konten sama sekali
     if (!videoUrl && !pdfUrl) {
         contentHTML += '<p>No content available for this module.</p>';
     }
@@ -120,8 +115,7 @@ async function completeModule(button, moduleId) {
         }
     } catch (error) {
         alert('An unexpected error occurred. Check the console for details.');
-        // [BARU] Tambahkan baris ini untuk mencetak error yang sebenarnya
-        console.error("Error saat menyelesaikan modul:", error);
+        console.error("rrror:", error);
     }
 }
 </script>

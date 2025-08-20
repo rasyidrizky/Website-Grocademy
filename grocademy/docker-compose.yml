@@ -27,7 +27,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      SECRET_KEY: secret-key-lokal-anda
+      SECRET_KEY: bagasfans
       DEBUG: '1'
       DATABASE_URL: postgres://grocademy_user:grocademy_password@db:5432/grocademy_db
     restart: unless-stopped

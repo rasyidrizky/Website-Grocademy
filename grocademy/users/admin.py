@@ -4,7 +4,6 @@ from .models import CustomUser
 
 # Register your models here.
 class CustomUserAdmin(UserAdmin):
-    # Baris-baris ini menambahkan field 'balance' ke halaman detail pengguna di admin
     fieldsets = UserAdmin.fieldsets + (
         ('Custom Fields', {'fields': ('balance',)}),
     )
@@ -12,5 +11,4 @@ class CustomUserAdmin(UserAdmin):
         ('Custom Fields', {'fields': ('balance',)}),
     )
 
-# Mendaftarkan CustomUser dengan konfigurasi tampilan CustomUserAdmin
 admin.site.register(CustomUser, CustomUserAdmin)

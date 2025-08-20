@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'secret-key-lokal-yang-tidak-aman-untuk-development')
+SECRET_KEY = os.getenv('SECRET_KEY', 'bagas-fanclub')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ['true', '1', 't']
@@ -168,15 +168,16 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-# JWT Settings (Masa berlaku token maksimal 1 jam) [cite: 173]
+# JWT Settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
-# CORS Settings (Izinkan akses dari semua origin untuk development)
+# CORS Settings
 CORS_ALLOW_ALL_ORIGINS = True
 
+# CSRF Settings
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
 
 SPECTACULAR_SETTINGS = {

@@ -60,7 +60,6 @@
 
         let html = '';
         items.forEach(item => {
-            // [DIPERBARUI] Mengubah format harga kembali ke Dolar
             const price = parseFloat(item.course.price).toFixed(2);
             html += `
                 <div class="card mb-3" id="cart-item-${item.id}">
@@ -87,7 +86,6 @@
         const checkoutButton = document.getElementById('checkout-button');
         const totalPrice = items.reduce((sum, item) => sum + parseFloat(item.course.price), 0);
 
-        // [DIPERBARUI] Mengubah format total harga kembali ke Dolar
         container.innerHTML = `
             <div class="d-flex justify-content-between">
                 <span>Total Price:</span>

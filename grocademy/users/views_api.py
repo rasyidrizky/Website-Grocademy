@@ -8,41 +8,18 @@ from django.contrib.auth import login
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 class CustomTokenObtainPairView(TokenObtainPairView):
-    def post(self, request, *args, **kwargs):
-        # -- DEBUG PRINT 1 --
-        print("--- 1. MASUK KE CUSTOM LOGIN VIEW ---")
-        
+    def post(self, request, *args, **kwargs):        
         response = super().post(request, *args, **kwargs)
-
-        # -- DEBUG PRINT 2 --
-        print(f"--- 2. STATUS CODE DARI JWT LOGIN: {response.status_code} ---")
         
         if response.status_code == 200:
-            # -- DEBUG PRINT 3 --
-            print("--- 3. JWT Login Berhasil, Mencoba Membuat Sesi Django ---")
             serializer = self.get_serializer(data=request.data)
             
             try:
                 serializer.is_valid(raise_exception=True)
                 user = serializer.user
-                
-                # -- DEBUG PRINT 4 --
-                print(f"--- 4. User ditemukan: {user.username} ---")
-
-                # Fungsi kritis yang seharusnya membuat cookie
                 login(request, user)
-                
-                # -- DEBUG PRINT 5 --
-                print("--- 5. Fungsi login() dari Django Telah Dipanggil ---")
-                
-                # Pengecekan krusial: apakah objek session ada di request?
-                if request.session and request.session.session_key:
-                    print(f"--- 6. BERHASIL! Objek session dibuat. Key: {request.session.session_key} ---")
-                else:
-                    print("--- 6. GAGAL! Tidak ada objek session di request. Masalah ada di middleware. ---")
-
             except Exception as e:
-                print(f"--- !!! TERJADI ERROR SAAT MEMBUAT SESI: {e} ---")
+                print(f"error: {e}")
         
         return response
 
@@ -59,18 +36,15 @@ class UserDetailAPIView(generics.RetrieveAPIView):
         return self.request.user
     
 class UserAdminViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet untuk admin mengelola pengguna.
-    """
     queryset = CustomUser.objects.all().order_by('id')
     serializer_class = AdminUserSerializer
-    permission_classes = [permissions.IsAdminUser] # Hanya admin yang bisa akses
+    permission_classes = [permissions.IsAdminUser]
     filter_backends = [SearchFilter]
     search_fields = ['username', 'email', 'first_name', 'last_name']
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        # Mencegah admin menghapus dirinya sendiri
+        
         if instance == request.user:
             return Response(
                 {'error': 'You cannot delete your own account.'}, 
@@ -80,7 +54,6 @@ class UserAdminViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], serializer_class=UserBalanceSerializer)
     def balance(self, request, pk=None):
-        """Action kustom untuk menambah saldo pengguna."""
         user = self.get_object()
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():

@@ -6,10 +6,10 @@ from .serializers import CourseSerializer, ModuleSerializer
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly] # User biasa bisa lihat, hanya admin bisa edit
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     filter_backends = [SearchFilter]
-    search_fields = ['title', 'instructor', 'description'] # Atribut yang bisa dicari
+    search_fields = ['title', 'instructor', 'description']
 
     def get_permissions(self):
         # Hanya admin yang bisa create, update, delete [cite: 145]
@@ -21,4 +21,4 @@ class CourseViewSet(viewsets.ModelViewSet):
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module.objects.all()
     serializer_class = ModuleSerializer
-    permission_classes = [permissions.IsAdminUser] # Hanya admin yang bisa CRUD module [cite: 158]
+    permission_classes = [permissions.IsAdminUser]

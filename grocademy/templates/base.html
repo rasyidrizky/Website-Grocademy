@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grocademy</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <script>
         (function() {
@@ -17,12 +19,25 @@
             }
         })();
     </script>
+    
+    <style>
+        .card-course {
+            transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+        }
+        .card-course:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top shadow-sm" data-bs-theme="light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">Grocademy</a>
+            <a class="navbar-brand" href="/">
+                <img src="{% static 'images/logo.png' %}" alt="Grocademy Logo" height="40">
+                Grocademy
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -64,21 +79,17 @@
         const token = localStorage.getItem('accessToken');
 
         if (token) {
-            // --- USER IS LOGGED IN ---
-
-            // 1. Show all protected links
             document.getElementById('my-courses-link-container').style.display = 'block';
             document.getElementById('cart-link-container').style.display = 'block';
-            document.getElementById('history-link-container').style.display = 'block'; // This line makes the History link visible
+            document.getElementById('history-link-container').style.display = 'block';
 
-            // 2. Fetch user info for navbar
             fetch('/api/auth/self/', { headers: { 'Authorization': `Bearer ${token}` }})
             .then(res => res.json())
             .then(data => {
                 if (data.username) {
                     navAuthSection.innerHTML = `
                         <span class="navbar-text me-3">Welcome, ${data.username} | Balance: $${parseFloat(data.balance).toFixed(2)}</span>
-                        <button id="logout-button" class="btn btn-outline-light">Logout</button>
+                        <button id="logout-button" class="btn btn-outline-dark">Logout</button>
                     `;
                     document.getElementById('logout-button').addEventListener('click', () => {
                         localStorage.clear();
@@ -90,7 +101,6 @@
                 }
             });
 
-            // 3. Fetch cart info for item count
             fetch('/api/cart/', { headers: { 'Authorization': `Bearer ${token}` }})
             .then(res => res.json())
             .then(cartData => {
@@ -102,9 +112,8 @@
             });
 
         } else {
-            // --- USER IS LOGGED OUT ---
             navAuthSection.innerHTML = `
-                <a href="/login" class="btn btn-outline-light me-2">Login</a>
+                <a href="/login" class="btn btn-dark me-2">Login</a> 
                 <a href="/register" class="btn btn-primary">Register</a>
             `;
         }

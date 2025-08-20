@@ -1,5 +1,3 @@
-# courses/views_api_buy.py
-
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -17,15 +15,12 @@ class BuyCourseAPIView(APIView):
 
         user = request.user
 
-        # 1. Cek apakah kursus sudah dibeli
         if UserCourse.objects.filter(user=user, course=course).exists():
             return Response({'error': 'You have already purchased this course'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # 2. Cek apakah saldo cukup
         if user.balance < course.price:
             return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 3. Lakukan transaksi
         user.balance -= course.price
         user.save()
 

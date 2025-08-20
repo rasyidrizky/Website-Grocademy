@@ -41,10 +41,8 @@ router.register(r'modules', ModuleViewSet)
 router.register(r'users', UserAdminViewSet)
 
 urlpatterns = [
-    # 1. Admin Page
     path('admin/', admin.site.urls),
 
-    # 2. REST API Endpoints (untuk FE Admin)
     path('api/', include(router.urls)),
     path('api/auth/register/', RegisterAPIView.as_view(), name='api_register'),
     path('api/auth/login/', CustomTokenObtainPairView.as_view(), name='api_login'),
@@ -68,9 +66,7 @@ urlpatterns = [
     path('api/history/', PurchaseHistoryAPIView.as_view(), name='api_purchase_history'),
     path('history/', HistoryPageView.as_view(), name='history_page'),
 
-    # 3. Frontend Monolith Pages
     path('', HomePageView.as_view(), name='home'),
-    # --- Tambahkan URL di bawah ini ---
     path('register/', RegisterPageView.as_view(), name='register_page'),
     path('login/', LoginPageView.as_view(), name='login_page'),
     path('course/<int:pk>/', CourseDetailPageView.as_view(), name='course_detail'),

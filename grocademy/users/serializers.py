@@ -26,22 +26,18 @@ class RegisterSerializer(serializers.ModelSerializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name']
         )
-        # Hash password [cite: 112]
         user.set_password(validated_data['password'])
         user.save()
         return user
     
 class AdminUserSerializer(serializers.ModelSerializer):
-    """Serializer untuk admin, menampilkan lebih banyak detail."""
     class Meta:
         model = CustomUser
-        # Tampilkan field yang relevan untuk admin
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 
             'balance', 'is_staff', 'is_active', 'date_joined'
         ]
-        read_only_fields = ['date_joined'] # Hanya bisa dibaca
+        read_only_fields = ['date_joined']
 
 class UserBalanceSerializer(serializers.Serializer):
-    """Serializer untuk menambah (increment) saldo."""
     increment = serializers.DecimalField(max_digits=10, decimal_places=2)

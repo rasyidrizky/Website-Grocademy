@@ -12,20 +12,17 @@ import json
 
 class HomePageView(View):
     def get(self, request):
-        # Ambil query pencarian dari URL
         query = request.GET.get('q', '') 
         
-        # Filter course berdasarkan query
         course_list = Course.objects.filter(title__icontains=query).order_by('title')
 
-        # Setup paginator
-        paginator = Paginator(course_list, 6) # Tampilkan 6 course per halaman
+        paginator = Paginator(course_list, 6)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         
         context = {
             'page_obj': page_obj,
-            'query': query, # Kirim query kembali ke template
+            'query': query,
         }
         return render(request, 'index.html', context)
     
@@ -34,23 +31,17 @@ class CourseDetailPageView(View):
     def get(self, request, pk):
         course = Course.objects.get(pk=pk)
 
-        # --- [LOGIKA BARU] Logika cerdas untuk menangani 'topics' ---
         topics_data = course.topics
         topics_list = []
         if isinstance(topics_data, list):
-            # Jika sudah berupa list, langsung gunakan
             topics_list = topics_data
         elif isinstance(topics_data, str):
-            # Jika berupa string, coba parsing sebagai JSON
             try:
                 topics_list = json.loads(topics_data)
-                # Pastikan hasilnya adalah list
                 if not isinstance(topics_list, list):
                     topics_list = [topics_list]
             except json.JSONDecodeError:
-                # Jika gagal parsing, anggap sebagai satu topik utuh
                 topics_list = [topics_data]
-        # ----------------------------------------------------
 
         is_purchased = False
         is_completed = False
@@ -67,16 +58,15 @@ class CourseDetailPageView(View):
             'course': course,
             'is_purchased': is_purchased,
             'is_completed': is_completed,
-            'topics_list': topics_list  # Gunakan hasil dari logika cerdas
+            'topics_list': topics_list
         }
         return render(request, 'course_detail.html', context)
     
 @method_decorator(never_cache, name='dispatch')
 class MyCoursesPageView(LoginRequiredMixin, View):
-    login_url = '/login/' # URL tujuan jika user belum login
+    login_url = '/login/'
 
     def get(self, request):
-        # Ambil semua course yang dimiliki user
         user_courses = UserCourse.objects.filter(user=request.user).select_related('course')
         courses = [uc.course for uc in user_courses]
         
@@ -87,22 +77,13 @@ class MyCoursesPageView(LoginRequiredMixin, View):
     
 @method_decorator(never_cache, name='dispatch')
 class CourseModulePageView(LoginRequiredMixin, View):
-    """
-    View ini sekarang DILINDUNGI.
-    LoginRequiredMixin adalah lapis keamanan pertama.
-    """
-    login_url = '/login/'  # Jika tidak login, alihkan ke sini.
+    login_url = '/login/'
 
     def get(self, request, pk):
         try:
-            # Lapis Keamanan Kedua: Cek apakah user telah membeli kursus ini.
-            # Jika baris ini gagal (user belum membeli), akan loncat ke blok 'except'.
             user_course = UserCourse.objects.get(user=request.user, course_id=pk)
         except UserCourse.DoesNotExist:
-            # Jika user sudah login tapi belum membeli, alihkan ke halaman utama.
             return redirect('home')
-
-        # --- Kode di bawah ini hanya akan berjalan jika user sudah login DAN sudah membeli ---
         
         course = user_course.course
         modules = course.modules.all().order_by('order')
@@ -114,7 +95,6 @@ class CourseModulePageView(LoginRequiredMixin, View):
         completed_count = completed_modules.count()
         progress_percentage = (completed_count / total_modules) * 100 if total_modules > 0 else 0
         
-        # --- [LOGIKA BARU] Salin logika cerdas yang sama ke sini ---
         topics_data = course.topics
         topics_list = []
         if isinstance(topics_data, list):
@@ -126,14 +106,13 @@ class CourseModulePageView(LoginRequiredMixin, View):
                     topics_list = [topics_list]
             except json.JSONDecodeError:
                 topics_list = [topics_data]
-        # ----------------------------------------------------
 
         context = {
             'course': course,
             'modules': modules,
             'completed_modules_ids': list(completed_modules_ids),
             'progress_percentage': round(progress_percentage),
-            'topics_list': json.loads(course.topics) # <-- TAMBAHKAN BARIS INI
+            'topics_list': json.loads(course.topics)
         }
         return render(request, 'course_module.html', context)
     
@@ -156,19 +135,11 @@ class CertificateView(LoginRequiredMixin, View):
             'completion_date': user_course.completion_date
         }
 
-        # 1. Render template HTML menjadi sebuah string
         html_string = render_to_string('certificate.html', context)
-
-        # 2. Buat objek HTML dari string tersebut
         html = HTML(string=html_string, base_url=request.build_absolute_uri())
-
-        # 3. Buat file PDF di dalam memori
         pdf = html.write_pdf()
-
-        # 4. Buat response HTTP dengan konten PDF
         response = HttpResponse(pdf, content_type='application/pdf')
 
-        # 5. Tambahkan header agar file di-download dengan nama yang bagus
         filename = f"Sertifikat-{user_course.course.title.replace(' ', '-')}.pdf"
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
 

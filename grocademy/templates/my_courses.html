@@ -7,7 +7,7 @@
     <div class="row">
         {% for course in courses %}
         <div class="col-md-4 mb-3">
-            <div class="card h-100">
+            <div class="card h-100 card-course text-bg-dark">
                 {% if course.thumbnail_image %}
                     <img src="{{ course.thumbnail_image }}" class="card-img-top" alt="{{ course.title }}" style="height: 180px; object-fit: cover;">
                 {% else %}

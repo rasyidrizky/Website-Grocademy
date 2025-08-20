@@ -3,30 +3,29 @@ from users.models import CustomUser
 
 # Create your models here.
 class Course(models.Model):
-    title = models.CharField(max_length=200) # [cite: 148]
-    description = models.TextField() # [cite: 149]
-    instructor = models.CharField(max_length=100) # [cite: 150]
-    topics = models.JSONField() # [cite: 151]
-    price = models.DecimalField(max_digits=10, decimal_places=2) # [cite: 152]
-    thumbnail_image = models.URLField(max_length=200, null=True, blank=True) # [cite: 153]
-    created_at = models.DateTimeField(auto_now_add=True) # [cite: 154]
-    updated_at = models.DateTimeField(auto_now=True) # [cite: 155]
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    instructor = models.CharField(max_length=100)
+    topics = models.JSONField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    thumbnail_image = models.URLField(max_length=200, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
 
 class Module(models.Model):
-    course = models.ForeignKey(Course, related_name='modules', on_delete=models.CASCADE) # [cite: 160]
-    title = models.CharField(max_length=200) # [cite: 161]
-    description = models.TextField() # [cite: 162]
-    pdf_content = models.URLField(max_length=200, null=True, blank=True) # [cite: 163]
+    course = models.ForeignKey(Course, related_name='modules', on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    pdf_content = models.URLField(max_length=200, null=True, blank=True)
     video_content = models.URLField(max_length=200, null=True, blank=True)
-    order = models.PositiveIntegerField() # [cite: 164]
+    order = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        # 'order' harus unik untuk setiap course [cite: 164]
         unique_together = ('course', 'order')
         ordering = ['order']
 
@@ -37,7 +36,6 @@ class UserCourse(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     purchased_at = models.DateTimeField(auto_now_add=True)
-    # --- Tambahkan field di bawah ini ---
     completion_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -64,7 +62,6 @@ class CartItem(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # Pastikan satu course hanya bisa ditambahkan sekali ke dalam satu cart
         unique_together = ('cart', 'course')
 
     def __str__(self):

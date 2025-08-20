@@ -1,5 +1,3 @@
-# users/views_frontend.py
-
 from django.shortcuts import render
 from django.views import View
 

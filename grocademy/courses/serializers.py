@@ -17,7 +17,6 @@ class CartItemCourseSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'instructor', 'price', 'thumbnail_image']
         
 class CartItemSerializer(serializers.ModelSerializer):
-    # Kita ingin menampilkan detail kursus, bukan hanya ID-nya
     course = CourseSerializer(read_only=True)
 
     class Meta:
@@ -32,7 +31,7 @@ class CartSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'created_at', 'items']
         
 class UserCourseSerializer(serializers.ModelSerializer):
-    course = CourseSerializer(read_only=True) # Tampilkan detail kursus
+    course = CourseSerializer(read_only=True)
 
     class Meta:
         model = UserCourse

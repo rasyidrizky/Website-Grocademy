@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<div class="p-5 mb-4 bg-light rounded-3">
+<div class="p-5 mb-4 bg-body-tertiary rounded-3">
     <div class="container-fluid py-5">
         <h1 class="display-5 fw-bold">Welcome to Grocademy!</h1>
         <p class="col-md-8 fs-4">Platform belajar milik Gro. Ayo mulai petualangan belajarmu!</p>
         
         <form class="d-flex mt-4" method="GET" action="/">
-            <input class="form-control me-2" type="search" placeholder="Cari course berdasarkan judul..." name="q" value="{{ query }}">
+            <input class="form-control me-2" type="search" placeholder="Search for courses by title..." name="q" value="{{ query }}">
             <button class="btn btn-primary" type="submit">Search</button>
         </form>
     </div>
@@ -17,7 +17,7 @@
 <div class="row">
     {% for course in page_obj %}
     <div class="col-md-4 mb-3">
-        <div class="card h-100">
+        <div class="card h-100 card-course text-bg-dark">
             {% if course.thumbnail_image %}
                 <img src="{{ course.thumbnail_image }}" class="card-img-top" alt="{{ course.title }}" style="height: 180px; object-fit: cover;">
             {% else %}
@@ -32,7 +32,7 @@
         </div>
     </div>
     {% empty %}
-    <p>Tidak ada course yang ditemukan.</p>
+    <p>No courses found</p>
     {% endfor %}
 </div>
 
@@ -43,7 +43,7 @@
             <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}">Previous</a></li>
         {% endif %}
 
-        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</span></li>
+        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
         
         {% if page_obj.has_next %}
             <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}">Next</a></li>
