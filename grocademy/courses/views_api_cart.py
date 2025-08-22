@@ -24,7 +24,7 @@ class CartView(APIView):
         cart, created = Cart.objects.get_or_create(user=request.user)
 
         if UserCourse.objects.filter(user=request.user, course=course).exists():
-             return Response({"error": "You have already purchased this course"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "You have already purchased this course"}, status=status.HTTP_400_BAD_REQUEST)
 
         if CartItem.objects.filter(cart=cart, course=course).exists():
             return Response({"error": "Course is already in the cart"}, status=status.HTTP_400_BAD_REQUEST)

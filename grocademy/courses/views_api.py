@@ -12,7 +12,6 @@ class CourseViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'instructor', 'description']
 
     def get_permissions(self):
-        # Hanya admin yang bisa create, update, delete [cite: 145]
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAdminUser()]
         return super().get_permissions()

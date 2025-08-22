@@ -14,22 +14,29 @@ import os
 import dj_database_url
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'bagas-fanclub')
+SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ['true', '1', 't']
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = []
+deployed_host = os.getenv('DJANGO_ALLOWED_HOSTS')
 
+if deployed_host:
+    ALLOWED_HOSTS.append(deployed_host)
 if DEBUG:
     ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
 

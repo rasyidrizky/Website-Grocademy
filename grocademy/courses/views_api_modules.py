@@ -15,7 +15,7 @@ class ModuleListAPIView(generics.ListAPIView):
         user = self.request.user
         
         if not UserCourse.objects.filter(user=user, course_id=course_id).exists():
-            return Module.objects.none() # Kembalikan queryset kosong jika belum beli
+            return Module.objects.none()
         
         return Module.objects.filter(course_id=course_id).order_by('order')
 

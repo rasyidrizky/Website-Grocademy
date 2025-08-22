@@ -47,7 +47,7 @@ urlpatterns = [
     path('api/auth/register/', RegisterAPIView.as_view(), name='api_register'),
     path('api/auth/login/', CustomTokenObtainPairView.as_view(), name='api_login'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='api_refresh'),
-    path('api/auth/self/', UserDetailAPIView.as_view(), name='api_self'), # Sesuai kontrak [cite: 582]
+    path('api/auth/self/', UserDetailAPIView.as_view(), name='api_self'),
     
     path('api/courses/<int:pk>/buy/', BuyCourseAPIView.as_view(), name='api_buy_course'),
     path('api/courses/my-courses/', MyCoursesAPIView.as_view(), name='api_my_courses'),
