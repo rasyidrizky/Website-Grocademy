@@ -20,15 +20,13 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-# Import API Views
+# Import API & Frontend Views
 from courses.views_api import CourseViewSet, ModuleViewSet, CourseCountView
 from courses.views_api_cart import CartView, CartItemView, CheckoutView
 from users.views_api import RegisterAPIView, UserDetailAPIView, UserAdminViewSet, CustomTokenObtainPairView 
 
-# Import Frontend Views
 from courses.views_frontend import HomePageView, CourseDetailPageView, MyCoursesPageView, CourseModulePageView, CertificateView, CartPageView, HistoryPageView
 
-# Import Frontend Views User
 from users.views_frontend import RegisterPageView, LoginPageView, ProfilePageView
 from courses.views_api_buy import BuyCourseAPIView
 from courses.views_api_mycourses import MyCoursesAPIView, PurchaseHistoryAPIView

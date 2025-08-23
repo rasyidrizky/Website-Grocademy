@@ -20,15 +20,12 @@ NIM: 18223114
 
 ## Design Pattern
 1. Model-View-Template (MVT)
-<br>
 MVT pada proyek ini didasarkan pada pola arsitektur yang secara native digunakan oleh framework Django. Pola ini memisahkan aplikasi ke dalam tiga komponen utama: Model yang mendefinisikan struktur tabel serta logika bisnis, View yang menangani permintaan HTTP dan menghubungkan data dengan presentasi, serta Template yang menyajikan data kepada pengguna. Pemanfaatan pola ini memastikan struktur kode yang lebih terorganisir, modular, dan mudah dipelihara seiring perkembangan aplikasi.
 
 2. Singleton
-<br>
 Dalam konteks Django, Singleton Pattern diterapkan secara implisit pada beberapa komponen inti, salah satunya objek Settings yang setiap kali dilakukan pemanggilan `from django.conf import settings`, yang diperoleh selalu instance yang sama. Penerapan pola ini memungkinkan manajemen state dan konfigurasi global yang terpusat serta konsisten sehingga setiap bagian aplikasi mengakses parameter yang identik tanpa redundansi objek maupun risiko inkonsistensi.
 
 3. Decorator
-<br>
 Decorator Pattern merupakan pola perancangan yang memungkinkan penambahan fungsionalitas baru pada objek atau fungsi secara dinamis tanpa mengubah strukturnya. Pada proyek ini, penerapan Decorator Pattern terlihat melalui penggunaan dekorator Django, misalnya `@method_decorator(never_cache, name='dispatch')` pada kelas CourseDetailPageView di `courses/views_frontend.py`. Pola ini digunakan untuk membungkus view dengan perilaku tambahan agar halaman tidak disimpan di-cache sehingga fitur keamanan atau pengelolaan caching dapat ditambahkan secara modular tanpa mengubah logika utama view.
 
 ## Tech Stack
@@ -106,6 +103,7 @@ Decorator Pattern merupakan pola perancangan yang memungkinkan penambahan fungsi
 
 ## Bonus
 **B01 - OWASP**
+<br>
 Aplikasi ini diuji terhadap 3 celah keamanan umum dari OWASP Top 10 2021:
 1. **A03:2021 - Injection**: Berkat penggunaan Django ORM yang secara otomatis melakukan parameterized queries, aplikasi ini kebal terhadap serangan SQL Injection melalui form pencarian.
 2. **Cross-Site Scripting (XSS)**: Template engine Django secara default melakukan auto-escaping, yang mengubah input skrip berbahaya menjadi teks biasa sehingga tidak bisa dieksekusi di browser pengguna lain.
@@ -118,6 +116,10 @@ Aplikasi ini telah berhasil di-deploy dan berjalan secara live.
 - **Platform Aplikasi**: Fly.io
 - **Platform Database**: Neon.tech (PostgreSQL)
 - **Link Aplikasi**: https://grocademy-floral-cloud-341.fly.dev/
+
+**B03 - Polling**
+<br>
+Mekanisme short-polling bekerja dengan melakukan pengecekan berkala melalui endpoint ringan `/api/courses/count` yang mengembalikan jumlah total kursus saat ini. JavaScript di sisi klien menyimpan jumlah awal kursus, kemudian setiap 15 detik membandingkannya dengan data terbaru dari API. Jika terjadi perubahan, sistem menampilkan notifikasi dan secara otomatis memuat ulang halaman setelah lima detik guna menampilkan daftar kursus yang terkini.
 
 **B05 - Lighthouse**
 
@@ -132,24 +134,23 @@ Dokumentasi REST API yang interaktif dan profesional telah dibuat menggunakan `d
 
 **B08 - SOLID**
 - **Single Responsibility Principle (SRP)**
-<br>
 Prinsip ini menekankan bahwa setiap kelas atau modul sebaiknya hanya memiliki satu tanggung jawab utama. Dalam proyek Django, pemisahan peran telah jelas: `models.py` mendefinisikan struktur data, `views_...py` mengelola logika bisnis, `serializers.py` menangani transformasi data, dan `urls.py` mengatur routing. Dengan pembagian ini, perubahan pada satu aspek sistem tidak memengaruhi komponen lain sehingga kode lebih terstruktur dan mudah dipelihara.
 
 - **Open/Closed Principle (OCP)**
-<br>
 Prinsip ini menyatakan bahwa perangkat lunak harus terbuka untuk ekstensi namun tertutup terhadap modifikasi. Implementasinya terlihat pada penggunaan class-based views, seperti CourseViewSet yang memperluas ModelViewSet dari Django REST Framework. Dengan cara ini, pengembang dapat menambahkan fungsionalitas baru, seperti permission classes atau custom actions, tanpa mengubah kode inti framework, sehingga stabilitas sistem tetap terjaga.
 
 - **Liskov Substitution Principle (LSP)**
-<br>
 Prinsip ini menegaskan bahwa subclass harus dapat menggantikan superclass tanpa mengganggu fungsionalitas sistem. Model CustomUser yang diturunkan dari AbstractUser merupakan contoh penerapannya. Objek CustomUser dapat digunakan di seluruh mekanisme Django, seperti request.user atau LoginRequiredMixin, dengan tetap menjaga kompatibilitas penuh terhadap kontrak yang ditetapkan superclass.
 
 - **Interface Segregation Principle (ISP)**
-<br>
 Prinsip ini menekankan bahwa klien tidak seharusnya dipaksa untuk bergantung pada antarmuka yang tidak relevan baginya. Penerapannya terlihat dalam penggunaan beberapa serializer berbeda untuk CustomUser, seperti RegisterSerializer, UserSerializer, dan AdminUserSerializer. Pemisahan ini memastikan bahwa setiap endpoint hanya mengakses data sesuai kebutuhan sehingga mengurangi ketergantungan berlebih dan meningkatkan keterbacaan kode.
 
 - **Dependency Inversion Principle (DIP)**
+Prinsip ini menjelaskan modul tingkat tinggi dan rendah sama-sama bergantung pada abstraksi. Dalam proyek ini, views tidak bergantung langsung pada detail implementasi database, melainkan menggunakan Django ORM sebagai lapisan abstraksi. Dengan demikian, perubahan pada detail teknis, seperti penggantian PostgreSQL menjadi MySQL, tidak memerlukan penyesuaian pada kode view, sehingga tercipta arsitektur yang longgar (loosely coupled) dan fleksibel.
+
+**B09 - Automated Testing**
 <br>
-Prinsip ini menyarankan agar modul tingkat tinggi dan rendah sama-sama bergantung pada abstraksi. Dalam proyek ini, views tidak bergantung langsung pada detail implementasi database, melainkan menggunakan Django ORM sebagai lapisan abstraksi. Dengan demikian, perubahan pada detail teknis, seperti penggantian PostgreSQL menjadi MySQL, tidak memerlukan penyesuaian pada kode view, sehingga tercipta arsitektur yang longgar (loosely coupled) dan fleksibel.
+Pengujian dilakukan dengan testing framework bawaan Django dan diukur menggunakan coverage.py, mencakup dua area utama: validasi model (misalnya pembuatan dan penyimpanan objek Course) serta pengujian keamanan API endpoint `/api/courses/` (akses ditolak bagi pengguna tidak terautentikasi dan berhasil bagi pengguna terautentikasi). Hasil pengujian menunjukkan coverage sebesar 68% sehingga memenuhi target minimal.
 
 **B10 - Fitur Tambahan: Shopping Cart**
 <br>
