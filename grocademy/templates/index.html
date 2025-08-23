@@ -52,4 +52,42 @@
     </ul>
 </nav>
 
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let displayedCourseCount = {{ page_obj.paginator.count }};
+
+        async function checkForUpdates() {
+            try {
+                const response = await fetch('/api/courses/count/');
+                const data = await response.json();
+                
+                console.log(`Checking for updates... Server: ${data.total_courses}, Client: ${displayedCourseCount}`);
+
+                if (data.total_courses !== displayedCourseCount) {
+                    console.log("Changes detected! Reload page...");
+                    showUpdateNotification();
+                }
+            } catch (error) {
+                console.error("Polling error:", error);
+            }
+        }
+
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-info position-fixed bottom-0 start-50 translate-middle-x m-3';
+            notification.role = 'alert';
+            notification.innerHTML = 'There is an update! Page will reload in 5 seconds... <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"></button>';
+            
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        }
+
+        setInterval(checkForUpdates, 15000);
+    });
+</script>
+{% endblock %}
 {% endblock %}

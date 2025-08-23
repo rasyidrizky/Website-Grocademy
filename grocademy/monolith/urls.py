@@ -21,7 +21,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 # Import API Views
-from courses.views_api import CourseViewSet, ModuleViewSet 
+from courses.views_api import CourseViewSet, ModuleViewSet, CourseCountView
 from courses.views_api_cart import CartView, CartItemView, CheckoutView
 from users.views_api import RegisterAPIView, UserDetailAPIView, UserAdminViewSet, CustomTokenObtainPairView 
 
@@ -65,6 +65,8 @@ urlpatterns = [
     
     path('api/history/', PurchaseHistoryAPIView.as_view(), name='api_purchase_history'),
     path('history/', HistoryPageView.as_view(), name='history_page'),
+    
+    path('api/courses/count/', CourseCountView.as_view(), name='course_count'),
 
     path('', HomePageView.as_view(), name='home'),
     path('register/', RegisterPageView.as_view(), name='register_page'),
