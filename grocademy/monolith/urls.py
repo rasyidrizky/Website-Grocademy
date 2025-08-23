@@ -29,7 +29,7 @@ from users.views_api import RegisterAPIView, UserDetailAPIView, UserAdminViewSet
 from courses.views_frontend import HomePageView, CourseDetailPageView, MyCoursesPageView, CourseModulePageView, CertificateView, CartPageView, HistoryPageView
 
 # Import Frontend Views User
-from users.views_frontend import RegisterPageView, LoginPageView
+from users.views_frontend import RegisterPageView, LoginPageView, ProfilePageView
 from courses.views_api_buy import BuyCourseAPIView
 from courses.views_api_mycourses import MyCoursesAPIView, PurchaseHistoryAPIView
 from courses.views_api_modules import ModuleListAPIView, CompleteModuleAPIView
@@ -67,6 +67,8 @@ urlpatterns = [
     path('history/', HistoryPageView.as_view(), name='history_page'),
     
     path('api/courses/count/', CourseCountView.as_view(), name='course_count'),
+    
+    path('profile/', ProfilePageView.as_view(), name='profile_page'),
 
     path('', HomePageView.as_view(), name='home'),
     path('register/', RegisterPageView.as_view(), name='register_page'),
