@@ -25,7 +25,7 @@ MVT pada proyek ini didasarkan pada pola arsitektur yang secara native digunakan
 
 2. **Singleton**
 
-Dalam konteks Django, Singleton Pattern diterapkan secara implisit pada beberapa komponen inti, salah satunya objek Settings yang setiap kali dilakukan pemanggilan `from django.conf import settings`, yang diperoleh selalu instance yang sama. Penerapan pola ini memungkinkan manajemen state dan konfigurasi global yang terpusat serta konsisten sehingga setiap bagian aplikasi mengakses parameter yang identik tanpa redundansi objek maupun risiko inkonsistensi.
+Singleton Pattern diterapkan secara implisit pada beberapa komponen, salah satunya objek Settings yang setiap kali dilakukan pemanggilan `from django.conf import settings`, yang diperoleh selalu instance yang sama. Penerapan pola ini memungkinkan manajemen state dan konfigurasi global yang terpusat serta konsisten sehingga setiap bagian aplikasi mengakses parameter yang identik tanpa redundansi objek maupun risiko inkonsistensi.
 
 3. **Decorator**
 
@@ -108,10 +108,11 @@ Decorator Pattern merupakan pola perancangan yang memungkinkan penambahan fungsi
 **B01 - OWASP**
 <br>
 Aplikasi ini diuji terhadap 3 celah keamanan umum dari OWASP Top 10 2021:
-1. **A03:2021 - Injection**: Berkat penggunaan Django ORM yang secara otomatis melakukan parameterized queries, aplikasi ini kebal terhadap serangan SQL Injection melalui form pencarian.
-2. **Cross-Site Scripting (XSS)**: Template engine Django secara default melakukan auto-escaping, yang mengubah input skrip berbahaya menjadi teks biasa sehingga tidak bisa dieksekusi di browser pengguna lain.
-3. **A01:2021 - Broken Access Control**: Halaman-halaman sensitif seperti halaman modul dilindungi oleh dua lapis keamanan: otentikasi (LoginRequiredMixin) yang memastikan pengguna harus login, dan otorisasi yang memastikan pengguna hanya bisa mengakses modul dari kursus yang telah mereka beli.
-Link Percobaan: [Link]
+1. **A01:2021 – Broken Access Control**: Pengguna yang tidak terautentikasi secara otomatis dialihkan ketika mencoba mengakses halaman yang dilindungi, seperti modul, sehingga kontrol akses server terbukti berjalan efektif.
+2. **A05:2021 – Security Misconfiguration**: Mode DEBUG dinonaktifkan pada lingkungan produksi yang dibuktikan dengan perbedaan tampilan halaman error antara server lokal (menampilkan detail debug) dan server produksi (menampilkan pesan umum) sehingga mencegah kebocoran informasi teknis.
+3. **A07:2021 – Identification and Authentication Failures**: Web menerapkan kebijakan kata sandi yang kuat dengan menolak password yang terlalu pendek dan menolak username & email yang sudah terdaftar. Validasi ini dilakukan langsung oleh backend sehingga memperkuat sistem otentikasi pengguna.
+
+Link Simulasi: https://drive.google.com/file/d/1DSHNZmFzc7AI-7YzuGRlb5GhVPAZC4fH/view?usp=sharing
 
 **B02 - Deployment**
 <br>
