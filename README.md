@@ -123,6 +123,42 @@ Mekanisme short-polling bekerja dengan melakukan pengecekan berkala melalui endp
 
 **B05 - Lighthouse**
 
+**Home Page**
+<br>
+![Lighthouse Home Page](screenshot/lighthouse_browse_course.png)
+
+**Login**
+<br>
+![Lighthouse Login](screenshot/lighthouse_login.png)
+
+**Register**
+<br>
+![Lighthouse Register](screenshot/lighthouse_register.png)
+
+**Course Detail**
+<br>
+![Lighthouse Course Detail](screenshot/lighthouse_course_detail.png)
+
+**My Course**
+<br>
+![Lighthouse My Course](screenshot/lighthouse_my_course.png)
+
+**Module**
+<br>
+![Lighthouse Module](screenshot/lighthouse_course_module.png)
+
+**Shopping Cart**
+<br>
+![Lighthouse Shopping Cart](screenshot/lighthouse_shopping_cart.png)
+
+**Profile**
+<br>
+![Lighthouse Profile](screenshot/lighthouse_profile.png)
+
+**History**
+<br>
+![Lighthouse History](screenshot/lighthouse_history.png)
+
 **B06 - Responsive Layout**
 <br>
 Seluruh tampilan frontend dibangun menggunakan Bootstrap 5 dengan pendekatan mobile-first sehingga layout aplikasi secara otomatis beradaptasi dan tetap terlihat tertata dengan baik di berbagai ukuran layar, mulai dari perangkat mobile hingga desktop.
@@ -161,3 +197,34 @@ Aplikasi ini dilengkapi dengan fungsionalitas keranjang belanja yang lengkap, me
 - Menampilkan riwayat transaksi pembelian yang detail.
 
 ## Screenshot
+**Home Page**
+<br>
+![Home Page](screenshot/browse_course.png)
+
+**Login**
+<br>
+![Login](screenshot/login.png)
+
+**Register**
+<br>
+![Register](screenshot/register.png)
+
+**Course Detail**
+<br>
+![Course Detail](screenshot/course_detail.png)
+
+**My Course**
+<br>
+![My Course](screenshot/my_course.png)
+
+**Module**
+<br>
+![Module](screenshot/course_module.png)
+
+**Shopping Cart**
+<br>
+![Shopping Cart](screenshot/shopping_cart.png)
+
+**Certificate**
+<br>
+![Certificate](screenshot/certificate.png)
