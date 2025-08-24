@@ -7,7 +7,7 @@ NIM: 18223114
 
 ## Setup
 **Requirement**
-1. Docker Desktop terinstal dan berjalan di komputer Anda.
+1. Docker Desktop
 
 **How to use**
 1. `git clone https://github.com/rasyidrizky/Website-Grocademy.git`
@@ -19,13 +19,16 @@ NIM: 18223114
 - `docker-compose exec web python manage.py createsuperuser` (bikin akun admin)
 
 ## Design Pattern
-1. Model-View-Template (MVT)
+1. **Model-View-Template (MVT)**
+
 MVT pada proyek ini didasarkan pada pola arsitektur yang secara native digunakan oleh framework Django. Pola ini memisahkan aplikasi ke dalam tiga komponen utama: Model yang mendefinisikan struktur tabel serta logika bisnis, View yang menangani permintaan HTTP dan menghubungkan data dengan presentasi, serta Template yang menyajikan data kepada pengguna. Pemanfaatan pola ini memastikan struktur kode yang lebih terorganisir, modular, dan mudah dipelihara seiring perkembangan aplikasi.
 
-2. Singleton
+2. **Singleton**
+
 Dalam konteks Django, Singleton Pattern diterapkan secara implisit pada beberapa komponen inti, salah satunya objek Settings yang setiap kali dilakukan pemanggilan `from django.conf import settings`, yang diperoleh selalu instance yang sama. Penerapan pola ini memungkinkan manajemen state dan konfigurasi global yang terpusat serta konsisten sehingga setiap bagian aplikasi mengakses parameter yang identik tanpa redundansi objek maupun risiko inkonsistensi.
 
-3. Decorator
+3. **Decorator**
+
 Decorator Pattern merupakan pola perancangan yang memungkinkan penambahan fungsionalitas baru pada objek atau fungsi secara dinamis tanpa mengubah strukturnya. Pada proyek ini, penerapan Decorator Pattern terlihat melalui penggunaan dekorator Django, misalnya `@method_decorator(never_cache, name='dispatch')` pada kelas CourseDetailPageView di `courses/views_frontend.py`. Pola ini digunakan untuk membungkus view dengan perilaku tambahan agar halaman tidak disimpan di-cache sehingga fitur keamanan atau pengelolaan caching dapat ditambahkan secara modular tanpa mengubah logika utama view.
 
 ## Tech Stack
@@ -170,19 +173,19 @@ Dokumentasi REST API yang interaktif dan profesional telah dibuat menggunakan `d
 
 **B08 - SOLID**
 - **Single Responsibility Principle (SRP)**
-Prinsip ini menekankan bahwa setiap kelas atau modul sebaiknya hanya memiliki satu tanggung jawab utama. Dalam proyek Django, pemisahan peran telah jelas: `models.py` mendefinisikan struktur data, `views_...py` mengelola logika bisnis, `serializers.py` menangani transformasi data, dan `urls.py` mengatur routing. Dengan pembagian ini, perubahan pada satu aspek sistem tidak memengaruhi komponen lain sehingga kode lebih terstruktur dan mudah dipelihara.
+Dalam proyek ini, pemisahan peran telah jelas: `models.py` mendefinisikan struktur data, `views_...py` mengelola logika bisnis, `serializers.py` menangani transformasi data, dan `urls.py` mengatur routing. Dengan pembagian ini, perubahan pada satu aspek sistem tidak memengaruhi komponen lain sehingga kode lebih terstruktur dan mudah dipelihara.
 
 - **Open/Closed Principle (OCP)**
-Prinsip ini menyatakan bahwa perangkat lunak harus terbuka untuk ekstensi namun tertutup terhadap modifikasi. Implementasinya terlihat pada penggunaan class-based views, seperti CourseViewSet yang memperluas ModelViewSet dari Django REST Framework. Dengan cara ini, pengembang dapat menambahkan fungsionalitas baru, seperti permission classes atau custom actions, tanpa mengubah kode inti framework, sehingga stabilitas sistem tetap terjaga.
+Implementasi prinsip ini terlihat pada penggunaan class-based views, seperti CourseViewSet yang memperluas ModelViewSet dari Django REST Framework. Dengan cara ini, pengembang dapat menambahkan fungsionalitas baru, seperti permission classes atau custom actions, tanpa mengubah kode inti framework, sehingga stabilitas sistem tetap terjaga.
 
 - **Liskov Substitution Principle (LSP)**
-Prinsip ini menegaskan bahwa subclass harus dapat menggantikan superclass tanpa mengganggu fungsionalitas sistem. Model CustomUser yang diturunkan dari AbstractUser merupakan contoh penerapannya. Objek CustomUser dapat digunakan di seluruh mekanisme Django, seperti request.user atau LoginRequiredMixin, dengan tetap menjaga kompatibilitas penuh terhadap kontrak yang ditetapkan superclass.
+Model CustomUser yang diturunkan dari AbstractUser merupakan contoh penerapannya. Objek CustomUser dapat digunakan di seluruh mekanisme Django, seperti request.user atau LoginRequiredMixin, dengan tetap menjaga kompatibilitas penuh terhadap kontrak yang ditetapkan superclass.
 
 - **Interface Segregation Principle (ISP)**
-Prinsip ini menekankan bahwa klien tidak seharusnya dipaksa untuk bergantung pada antarmuka yang tidak relevan baginya. Penerapannya terlihat dalam penggunaan beberapa serializer berbeda untuk CustomUser, seperti RegisterSerializer, UserSerializer, dan AdminUserSerializer. Pemisahan ini memastikan bahwa setiap endpoint hanya mengakses data sesuai kebutuhan sehingga mengurangi ketergantungan berlebih dan meningkatkan keterbacaan kode.
+Penerapan ISP terlihat dalam penggunaan beberapa serializer berbeda untuk CustomUser, seperti RegisterSerializer, UserSerializer, dan AdminUserSerializer. Pemisahan ini memastikan bahwa setiap endpoint hanya mengakses data sesuai kebutuhan sehingga mengurangi ketergantungan berlebih dan meningkatkan keterbacaan kode.
 
 - **Dependency Inversion Principle (DIP)**
-Prinsip ini menjelaskan modul tingkat tinggi dan rendah sama-sama bergantung pada abstraksi. Dalam proyek ini, views tidak bergantung langsung pada detail implementasi database, melainkan menggunakan Django ORM sebagai lapisan abstraksi. Dengan demikian, perubahan pada detail teknis, seperti penggantian PostgreSQL menjadi MySQL, tidak memerlukan penyesuaian pada kode view, sehingga tercipta arsitektur yang longgar (loosely coupled) dan fleksibel.
+Dalam proyek ini, views tidak bergantung langsung pada detail implementasi database, melainkan menggunakan Django ORM sebagai lapisan abstraksi. Dengan demikian, perubahan pada detail teknis, seperti penggantian PostgreSQL menjadi MySQL, tidak memerlukan penyesuaian pada kode view, sehingga tercipta arsitektur yang longgar (loosely coupled) dan fleksibel.
 
 **B09 - Automated Testing**
 <br>
