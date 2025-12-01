@@ -43,7 +43,7 @@ urlpatterns = [
 
     path('api/', include(router.urls)),
     path('api/auth/register/', RegisterAPIView.as_view(), name='api_register'),
-    path('api/auth/login/', CustomTokenObtainPairView.as_view(), name='api_login'),
+    path('api/auth/login', CustomTokenObtainPairView.as_view(), name='api_login'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='api_refresh'),
     path('api/auth/self/', UserDetailAPIView.as_view(), name='api_self'),
     

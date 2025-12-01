@@ -185,7 +185,7 @@ SIMPLE_JWT = {
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CSRF Settings
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'https://labpro-ohl-2025-fe.hmif.dev').split(',')
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Grocademy API',
